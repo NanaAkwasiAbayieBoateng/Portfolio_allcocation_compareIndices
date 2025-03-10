@@ -3,7 +3,7 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 from scipy.optimize import minimize
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 from sklearn.model_selection import train_test_split
 import lightgbm as lgb
 
@@ -87,21 +87,17 @@ def compare_indices_to_sp500(tickers, start_date, end_date):
         cumulative_returns = (1 + returns).cumprod()
         optimal_portfolio_cumulative_returns = (1 + np.sum(returns * optimal_weights, axis=1)).cumprod()
 
-        fig, ax = plt.subplots(figsize=(12, 6))
-        ax.plot(cumulative_returns['^GSPC'], label='S&P 500')
-        ax.plot(optimal_portfolio_cumulative_returns, label='Optimal Portfolio')
-
         # Machine Learning Predictions
         predicted_returns = predict_future_returns(returns)
         ml_optimal_portfolio_cumulative_returns = (1 + np.sum(predicted_returns * optimal_weights, axis=1)).cumprod()
-        ax.plot(ml_optimal_portfolio_cumulative_returns, label='ML Predicted Optimal Portfolio')
 
-        ax.set_xlabel('Date')
-        ax.set_ylabel('Cumulative Returns')
-        ax.set_title('Cumulative Returns Comparison')
-        ax.legend()
-        ax.grid(True)
-        st.pyplot(fig)
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=cumulative_returns.index, y=cumulative_returns['^GSPC'], mode='lines', name='S&P 500'))
+        fig.add_trace(go.Scatter(x=optimal_portfolio_cumulative_returns.index, y=optimal_portfolio_cumulative_returns, mode='lines', name='Optimal Portfolio'))
+        fig.add_trace(go.Scatter(x=ml_optimal_portfolio_cumulative_returns.index, y=ml_optimal_portfolio_cumulative_returns, mode='lines', name='ML Predicted Optimal Portfolio'))
+
+        fig.update_layout(title='Cumulative Returns Comparison', xaxis_title='Date', yaxis_title='Cumulative Returns')
+        st.plotly_chart(fig)
 
     except Exception as e:
         st.write(f"An error occurred: {e}")
