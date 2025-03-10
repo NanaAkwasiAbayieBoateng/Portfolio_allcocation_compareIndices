@@ -9,7 +9,7 @@ import lightgbm as lgb
 
 def get_historical_data(tickers, start_date, end_date):
     """Fetches historical adjusted close prices for given tickers."""
-    data = yf.download(tickers, start=start_date, end=end_date)['Adj Close']
+    data = yf.download(tickers, start=start_date, end=end_date)['Close']
     return data
 
 def calculate_returns(data):
